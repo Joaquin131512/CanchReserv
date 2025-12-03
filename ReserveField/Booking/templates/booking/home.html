@@ -1,0 +1,116 @@
+{% extends 'booking/base.html' %}
+
+{% block content %}
+<div class="min-h-screen bg-background-light dark:bg-background-dark">
+    <!-- Header Section -->
+    <div class="bg-white dark:bg-[#182c1e] shadow-sm">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+            <h1 class="text-4xl font-bold text-[#0d1b12] dark:text-white mb-2">Encuentra la cancha perfecta</h1>
+            <p class="text-gray-600 dark:text-gray-400">Busca y filtra para encontrar la mejor cancha para ti.</p>
+        </div>
+    </div>
+
+    <!-- Search and Filters -->
+    <div class="bg-white dark:bg-[#182c1e] border-b border-gray-200 dark:border-gray-700">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+            <form method="GET" class="space-y-4">
+                <!-- Search Bar -->
+                <div class="flex gap-2">
+                    <input type="text" name="busqueda" placeholder="Buscar por nombre, ubicación..." 
+                           value="{{ request.GET.busqueda }}"
+                           class="flex-1 px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/50 bg-background-light dark:bg-background-dark text-[#0d1b12] dark:text-white">
+                    <button type="submit" class="px-6 py-2 bg-primary text-[#0d1b12] rounded-lg font-medium hover:opacity-90 transition">
+                        Buscar
+                    </button>
+                </div>
+
+                <!-- Filters -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <select name="tipo" class="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/50 bg-background-light dark:bg-background-dark text-[#0d1b12] dark:text-white">
+                        <option value="">Todos los tipos</option>
+                        {% for value, label in tipos_disponibles %}
+                            <option value="{{ value }}" {% if tipo_seleccionado == value %}selected{% endif %}>{{ label }}</option>
+                        {% endfor %}
+                    </select>
+
+                    <input type="text" name="ubicacion" placeholder="Buscar por ubicación..." 
+                           value="{{ request.GET.ubicacion }}"
+                           class="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/50 bg-background-light dark:bg-background-dark text-[#0d1b12] dark:text-white">
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Canchas Grid -->
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        {% if canchas %}
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                {% for cancha in canchas %}
+                    <div class="bg-white dark:bg-[#182c1e] rounded-lg overflow-hidden shadow-md hover:shadow-lg transition">
+                        <!-- Image -->
+                        {% if cancha.imagen %}
+                            <img src="{{ cancha.imagen.url }}" alt="{{ cancha.nombre }}" class="w-full h-48 object-cover">
+                        {% else %}
+                            <div class="w-full h-48 bg-gradient-to-br from-primary/20 to-primary/10 flex items-center justify-center">
+                                <span class="text-gray-400 text-lg">Sin imagen</span>
+                            </div>
+                        {% endif %}
+
+                        <div class="p-4">
+                            <!-- Title and Type -->
+                            <div class="mb-2">
+                                <h3 class="text-lg font-bold text-[#0d1b12] dark:text-white">{{ cancha.nombre }}</h3>
+                                <span class="inline-block text-xs font-medium text-primary bg-primary/10 px-2 py-1 rounded mt-1">
+                                    {{ cancha.get_tipo_display }}
+                                </span>
+                            </div>
+
+                            <!-- Location -->
+                            <p class="text-sm text-gray-600 dark:text-gray-400 mb-2">
+                                📍 {{ cancha.ubicacion }}
+                            </p>
+
+                            <!-- Rating -->
+                            <div class="flex items-center gap-2 mb-3">
+                                <div class="flex text-yellow-400">
+                                    {% for i in "12345" %}
+                                        {% if i|add:0 <= cancha.calificacion %}
+                                            <span class="text-lg">★</span>
+                                        {% else %}
+                                            <span class="text-lg text-gray-300">★</span>
+                                        {% endif %}
+                                    {% endfor %}
+                                </div>
+                                <span class="text-sm text-gray-600 dark:text-gray-400">
+                                    {{ cancha.calificacion }} ({{ cancha.total_resenas }} reseñas)
+                                </span>
+                            </div>
+
+                            <!-- Price -->
+                            <div class="mb-4">
+                                <span class="text-2xl font-bold text-primary">${{ cancha.precio_por_hora }}</span>
+                                <span class="text-sm text-gray-600 dark:text-gray-400">/hora</span>
+                            </div>
+
+                            <!-- Description -->
+                            <p class="text-sm text-gray-600 dark:text-gray-400 mb-4 line-clamp-2">
+                                {{ cancha.descripcion }}
+                            </p>
+
+                            <!-- Button -->
+                            <a href="{% url 'detalle_cancha' cancha.id %}" class="block w-full text-center px-4 py-2 bg-primary text-[#0d1b12] rounded-lg font-medium hover:opacity-90 transition">
+                                Ver Disponibilidad
+                            </a>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <div class="text-center py-12">
+                <p class="text-gray-600 dark:text-gray-400 text-lg">No se encontraron canchas disponibles</p>
+                <a href="{% url 'booking_home' %}" class="inline-block mt-4 text-primary hover:underline">Limpiar filtros</a>
+            </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

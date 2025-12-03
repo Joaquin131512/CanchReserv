@@ -1,0 +1,58 @@
+{% extends 'booking/base.html' %}
+
+{% block title %}Deja tu Reseña - {{ cancha.nombre }}{% endblock %}
+
+{% block content %}
+<div class="min-h-screen bg-background-light dark:bg-background-dark">
+    <div class="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <a href="{% url 'detalle_cancha' cancha.id %}" class="text-primary hover:underline mb-4 inline-block">← Volver</a>
+
+        <div class="bg-white dark:bg-[#182c1e] rounded-lg p-8 shadow-lg">
+            <h1 class="text-3xl font-bold text-[#0d1b12] dark:text-white mb-2">
+                {% if resena %}Edita tu Reseña{% else %}Deja tu Reseña{% endif %}
+            </h1>
+            <p class="text-gray-600 dark:text-gray-400 mb-6">{{ cancha.nombre }}</p>
+
+            <form method="POST" class="space-y-6">
+                {% csrf_token %}
+
+                <div>
+                    <label class="block text-sm font-medium text-[#0d1b12] dark:text-white mb-3">
+                        ¿Cómo fue tu experiencia?
+                    </label>
+                    <div class="flex gap-3">
+                        {% for i in "12345" %}
+                            <label class="flex items-center cursor-pointer">
+                                <input type="radio" name="calificacion" value="{{ i }}" 
+                                       {% if resena and resena.calificacion == i|add:0 %}checked{% endif %}
+                                       class="hidden">
+                                <span class="text-5xl transition hover:scale-110 {% if resena and resena.calificacion == i|add:0 %}text-yellow-400{% else %}text-gray-300 hover:text-yellow-300{% endif %}"
+                                      onmouseover="this.classList.remove('text-gray-300'); this.classList.add('text-yellow-300')"
+                                      onmouseout="this.classList.add('text-gray-300'); this.classList.remove('text-yellow-300')">★</span>
+                            </label>
+                        {% endfor %}
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium text-[#0d1b12] dark:text-white mb-2">
+                        Comentario (opcional)
+                    </label>
+                    <textarea name="comentario" rows="6"
+                              class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg bg-background-light dark:bg-background-dark text-[#0d1b12] dark:text-white focus:outline-none focus:ring-2 focus:ring-primary/50 resize-none"
+                              placeholder="Comparte tu experiencia con otros usuarios...">{% if resena %}{{ resena.comentario }}{% endif %}</textarea>
+                </div>
+
+                <div class="flex gap-3 pt-4">
+                    <button type="submit" class="flex-1 px-4 py-3 bg-primary text-[#0d1b12] rounded-lg font-bold hover:opacity-90 transition">
+                        {% if resena %}Actualizar Reseña{% else %}Publicar Reseña{% endif %}
+                    </button>
+                    <a href="{% url 'detalle_cancha' cancha.id %}" class="flex-1 text-center px-4 py-3 bg-gray-200 dark:bg-gray-800 text-[#0d1b12] dark:text-white rounded-lg font-bold hover:opacity-90 transition">
+                        Cancelar
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
